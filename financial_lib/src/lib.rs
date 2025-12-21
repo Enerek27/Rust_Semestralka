@@ -1,19 +1,18 @@
 pub mod db;
-pub mod schema;
 pub mod models;
+pub mod schema;
 
 pub mod record {
     use std::{collections::HashMap, vec};
 
-    use time::Date;
-
+    use chrono::NaiveDate;
 
     #[derive(PartialEq)]
     pub enum MoneyType {
         INCOME,
         EXPENSE,
     }
-    #[derive(PartialEq, Hash, Eq)]
+    #[derive(PartialEq, Hash, Eq, Clone, Copy)]
     pub enum ExpenseType {
         FUN,
         RESTAURANT,
@@ -32,7 +31,7 @@ pub mod record {
         pub money_type: MoneyType,
         pub amount: f32,
         pub expense: Option<ExpenseType>,
-        pub time: Date,
+        pub time: NaiveDate,
     }
     pub struct RecordManager {
         records: Vec<Record>,
@@ -69,7 +68,7 @@ pub mod record {
                 .map(|r| r.amount)
                 .sum()
         }
-        pub fn records_between(&self, from: Date, to: Date) -> Vec<&Record> {
+        pub fn records_between(&self, from: NaiveDate, to: NaiveDate) -> Vec<&Record> {
             let mut ret = Vec::new();
 
             for r in &self.records {
@@ -153,7 +152,7 @@ pub mod record {
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::CAR, car);
-            
+
             ret
         }
     }
