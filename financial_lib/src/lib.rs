@@ -1,3 +1,7 @@
+pub mod db;
+pub mod schema;
+pub mod models;
+
 pub mod record {
     use std::{collections::HashMap, vec};
 

@@ -1,0 +1,18 @@
+CaseWhen<diesel::expression::case_when::non_public_types::CaseWhenConditionsIntermediateNode<W, T, Whens>, E>
+CaseWhen<diesel::expression::case_when::non_public_types::CaseWhenConditionsLeaf<W, T>, diesel::expression::case_when::non_public_types::ElseExpression<E>>
+CaseWhen<diesel::expression::case_when::non_public_types::CaseWhenConditionsLeaf<W, T>, diesel::expression::case_when::non_public_types::NoElseExpression>
+diesel::expression::functions::aggregate_expressions::AggregateExpression<Fn, Prefix, Order, Filter, Window>
+diesel::expression::functions::window_functions::lag_with_offset_and_default_utils::lag_with_offset_and_default<T, T2, value, offset, default>
+diesel::expression::functions::window_functions::lag_with_offset_utils::lag_with_offset<T, value, offset>
+diesel::expression::functions::window_functions::lead_with_offset_and_default_utils::lead_with_offset_and_default<T, T2, value, offset, default>
+diesel::expression::functions::window_functions::lead_with_offset_utils::lead_with_offset<T, value, offset>
+diesel::sqlite::expression::functions::json_array_2_utils::json_array_2<V1, V2, value_1, value_2>
+diesel::sqlite::expression::functions::json_array_length_with_path_utils::json_array_length_with_path<J, j, path>
+diesel::sqlite::expression::functions::json_group_object_utils::json_group_object<N, V, names, values>
+diesel::sqlite::expression::functions::json_pretty_with_indentation_utils::json_pretty_with_indentation<J, j, indentation>
+diesel::sqlite::expression::functions::json_remove_2_utils::json_remove_2<J, json, path_1, path_2>
+diesel::sqlite::expression::functions::json_type_with_path_utils::json_type_with_path<J, j, path>
+diesel::sqlite::expression::functions::jsonb_array_2_utils::jsonb_array_2<V1, V2, value_1, value_2>
+diesel::sqlite::expression::functions::jsonb_group_array_utils::jsonb_group_array<E, elements>
+diesel::sqlite::expression::functions::jsonb_group_object_utils::jsonb_group_object<N, V, names, values>
+diesel::sqlite::expression::functions::jsonb_remove_2_utils::jsonb_remove_2<J, json, path_1, path_2>
