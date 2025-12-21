@@ -1,5 +1,3 @@
-
-
 use chrono::NaiveDate;
 use diesel::prelude::*;
 
@@ -38,7 +36,7 @@ impl From<&Record> for dbRecord {
                     crate::record::ExpenseType::TRAVEL => Some("TRAVEL".to_string()),
                     crate::record::ExpenseType::OTHER => Some("OTHER".to_string()),
                 },
-                None => None,
+                None => Some("NONE".to_string()),
             },
             time: value.time.format("%d.%m.%Y").to_string(),
         }
@@ -69,6 +67,7 @@ impl From<&dbRecord> for Record {
                     "CAR" => Some(crate::record::ExpenseType::CAR),
                     "TRAVEL" => Some(crate::record::ExpenseType::TRAVEL),
                     "OTHER" => Some(crate::record::ExpenseType::OTHER),
+                    "NONE" => None,
                     _ => panic!("Error while parsing expense from db"),
                 },
                 None => None,

@@ -7,12 +7,12 @@ pub mod record {
 
     use chrono::NaiveDate;
 
-    #[derive(PartialEq)]
+    #[derive(Debug,PartialEq, Clone, Copy)]
     pub enum MoneyType {
         INCOME,
         EXPENSE,
     }
-    #[derive(PartialEq, Hash, Eq, Clone, Copy)]
+    #[derive(Debug, PartialEq, Hash, Eq, Clone, Copy)]
     pub enum ExpenseType {
         FUN,
         RESTAURANT,
@@ -25,7 +25,7 @@ pub mod record {
         TRAVEL,
         OTHER,
     }
-
+    #[derive(Clone, Copy)]
     pub struct Record {
         pub id: i32,
         pub money_type: MoneyType,
@@ -153,6 +153,14 @@ pub mod record {
                 .sum();
             ret.insert(ExpenseType::CAR, car);
 
+            ret
+        }
+        pub fn get_all(&self) -> Vec<Record> {
+            let mut ret = Vec::new();
+            for r in &self.records {
+                let pusher = r.clone();
+                ret.push(pusher);
+            }
             ret
         }
     }

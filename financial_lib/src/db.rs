@@ -1,6 +1,8 @@
 use crate::schema;
-use crate::schema::records::dsl::records;
+use crate::schema::records::dsl::{id, records};
+use crate::schema::records::{amount, expense, money_type, time};
 use diesel::prelude::*;
+
 use diesel::sqlite::SqliteConnection;
 use dotenvy::dotenv;
 use std::env;
@@ -29,10 +31,32 @@ pub fn insert_record(record: &Record) {
 pub fn load_records() -> RecordManager {
     let conn = &mut establish_connection();
     let mut Rm = RecordManager::new();
-    let vec: Vec<dbRecord> = records.limit(10).load(conn).expect("Error loading from db");
+    let vec: Vec<dbRecord> = records.load(conn).expect("Error loading from db");
     let normal = vec.iter().map(|r| r.into());
     for r in normal {
         Rm.add_record(r);
     }
     Rm
+}
+
+pub fn update_record(record: &Record) {
+    let conn = &mut establish_connection();
+    let update_record: dbRecord = record.into();
+
+    diesel::update(records.filter(id.eq(record.id)))
+        .set((
+            money_type.eq(update_record.money_type),
+            amount.eq(update_record.amount),
+            expense.eq(update_record.expense),
+            time.eq(update_record.time),
+        ))
+        .execute(conn)
+        .expect("Error updating db");
+}
+
+pub fn delete_record(record: Record) {
+    let conn = &mut establish_connection();
+    diesel::delete(records.filter(id.eq(record.id)))
+        .execute(conn)
+        .expect("Error deleting record from db");
 }
