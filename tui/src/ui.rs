@@ -1,6 +1,9 @@
+use core::f64;
+
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::style::{Modifier, Style};
 use ratatui::symbols::{self, block};
+use ratatui::text::Span;
 use ratatui::widgets::{Axis, BarChart, Borders, Chart, Dataset, List, ListItem, StatefulWidget};
 use ratatui::{
     buffer::Buffer,
@@ -56,10 +59,8 @@ impl App {
     }
 
     pub fn render_pseudo_pie_chart(&mut self, area: Rect, buf: &mut Buffer) {
+        let data = percentage_for_pie(&self.record_lister);
 
-        let data= percentage_for_pie(&self.record_lister);
-    
-       
         let mut border = Block::bordered()
             .title("Expenses")
             .title_alignment(Alignment::Center)
@@ -69,18 +70,20 @@ impl App {
             border = border.border_style(Style::new().bg(Color::LightCyan));
         }
 
-        
-
         let chart = BarChart::default()
-        .block(border)
-        .data(&data)
-        .bar_width(5)
-        .bar_gap(1)
-        .bar_style(Style::default().fg(Color::LightRed))
-        .value_style(Style::default().fg(Color::Black).bg(Color::LightRed).add_modifier(Modifier::BOLD));
+            .block(border)
+            .data(&data)
+            .bar_width(5)
+            .bar_gap(1)
+            .bar_style(Style::default().fg(Color::LightRed))
+            .value_style(
+                Style::default()
+                    .fg(Color::Black)
+                    .bg(Color::LightRed)
+                    .add_modifier(Modifier::BOLD),
+            );
 
         chart.render(area, buf);
-        
     }
 
     pub fn render_balance_chart(&mut self, area: Rect, buf: &mut Buffer) {
@@ -92,19 +95,34 @@ impl App {
         }
 
         let data = data_for_time_graph(&self.record_lister);
-        let dataset = Dataset::default().marker(symbols::Marker::Dot)
-        .style(Style::default().bg(Color::LightYellow)).data(&data);
+        let dataset = Dataset::default()
+            .marker(symbols::Marker::Dot)
+            .style(Style::default().bg(Color::LightYellow).add_modifier(Modifier::BOLD))
+            .data(&data);
 
 
-        let chart = Chart::new().block(border).x_axis(
-            Axis::default()
-            .bounds([data.first().map(|x ,_| x.clone()).unwrap()])
-
-
-        )
-
-
+        let y_min = data.iter().map(|(_,y)| y.clone()).fold(f64::INFINITY, f64::min);
+        let y_max = data.iter().map(|(_,y)| y.clone()).fold(f64::NEG_INFINITY, f64::max);
         
+
+        let y_labels = vec![
+        Span::from(format!("{:.2}", y_min)),
+        Span::from(format!("{:.2}", (y_min + y_max) / 2.0)),
+        Span::from(format!("{:.2}", y_max)),
+        ];
+
+        let x_labels = vec![
+            Span::from("Start"), // prvý timestamp
+            Span::from("Mid"),   // stred
+            Span::from("End"),   // posledný timestamp
+        ];
+
+        let chart = Chart::new(vec![dataset])
+            .block(border)
+            .x_axis(Axis::default().bounds([data.first().unwrap().0, data.last().unwrap().0]).labels(x_labels))
+            .y_axis(Axis::default().bounds([y_min, y_max]).labels(y_labels));
+
+        chart.render(area, buf);
     }
 }
 

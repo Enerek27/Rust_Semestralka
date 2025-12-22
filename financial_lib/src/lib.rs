@@ -50,8 +50,6 @@ pub mod record {
         }
     }
 
-
-
     #[derive(Debug, Clone, Copy)]
     pub struct Record {
         pub id: i32,
