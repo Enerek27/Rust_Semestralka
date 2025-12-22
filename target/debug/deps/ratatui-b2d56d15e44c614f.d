@@ -1,0 +1,10 @@
+/home/nereke/Dokumenty/skola/rust/financny_pomocnik/target/debug/deps/ratatui-b2d56d15e44c614f.d: /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/lib.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/prelude.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets/stateful_widget_ref.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets/widget_ref.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/init.rs
+
+/home/nereke/Dokumenty/skola/rust/financny_pomocnik/target/debug/deps/libratatui-b2d56d15e44c614f.rmeta: /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/lib.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/prelude.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets/stateful_widget_ref.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets/widget_ref.rs /home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/init.rs
+
+/home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/lib.rs:
+/home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/prelude.rs:
+/home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets.rs:
+/home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets/stateful_widget_ref.rs:
+/home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/widgets/widget_ref.rs:
+/home/nereke/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ratatui-0.30.0-beta.0/src/init.rs:

@@ -1,3 +1,7 @@
 [workspace]
+members = [
+    "financial_lib",
+    "starter",
+    "tui",
+]
 resolver = "3"
-members = ["financial_lib", "starter"]

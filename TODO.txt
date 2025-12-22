@@ -1,0 +1,1 @@
+treba dorobit vykreslovanie grafu na grafe v case treba sa pozriet na min max v osiach nieco zle vykresluje v .map subor ui.rs

@@ -3,16 +3,22 @@ pub mod models;
 pub mod schema;
 
 pub mod record {
-    use std::{collections::HashMap, vec};
+    use std::{
+        collections::{BTreeMap, HashMap},
+        fmt::format,
+        vec,
+    };
 
     use chrono::NaiveDate;
 
-    #[derive(Debug,PartialEq, Clone, Copy)]
+    use crate::schema::records::money_type;
+
+    #[derive(Debug, PartialEq, Clone, Copy)]
     pub enum MoneyType {
         INCOME,
         EXPENSE,
     }
-    #[derive(Debug, PartialEq, Hash, Eq, Clone, Copy)]
+    #[derive(Debug, PartialEq, Hash, Eq, Clone, Copy, PartialOrd, Ord)]
     pub enum ExpenseType {
         FUN,
         RESTAURANT,
@@ -25,7 +31,28 @@ pub mod record {
         TRAVEL,
         OTHER,
     }
-    #[derive(Clone, Copy)]
+
+    impl From<ExpenseType> for &str {
+        fn from(value: ExpenseType) -> Self {
+            let ret = match value {
+                ExpenseType::FUN => "Fun",
+                ExpenseType::RESTAURANT => "Restaurant",
+                ExpenseType::SHOPPING => "Shopping",
+                ExpenseType::INVESTMENT => "Investment",
+                ExpenseType::FREETIME => "Freetime",
+                ExpenseType::HOME => "Home",
+                ExpenseType::CLOTH => "Cloth",
+                ExpenseType::CAR => "Car",
+                ExpenseType::TRAVEL => "Travel",
+                ExpenseType::OTHER => "Other",
+            };
+            ret
+        }
+    }
+
+
+
+    #[derive(Debug, Clone, Copy)]
     pub struct Record {
         pub id: i32,
         pub money_type: MoneyType,
@@ -33,6 +60,50 @@ pub mod record {
         pub expense: Option<ExpenseType>,
         pub time: NaiveDate,
     }
+
+    impl Record {
+        pub fn new(
+            id: i32,
+            mon_type: MoneyType,
+            amount: f32,
+            expense: Option<ExpenseType>,
+            time: NaiveDate,
+        ) -> Record {
+            let ret = Record {
+                id: id,
+                money_type: mon_type,
+                amount: amount,
+                expense: expense,
+                time: time,
+            };
+            ret
+        }
+        pub fn format_record(&self) -> String {
+            let mon_type = match self.money_type {
+                MoneyType::INCOME => "+",
+                MoneyType::EXPENSE => "-",
+            };
+            let expenseType = match self.expense {
+                Some(e) => match e {
+                    ExpenseType::FUN => "Fun",
+                    ExpenseType::RESTAURANT => "Restaurant",
+                    ExpenseType::SHOPPING => "Shopping",
+                    ExpenseType::INVESTMENT => "Investment",
+                    ExpenseType::FREETIME => "Freetime",
+                    ExpenseType::HOME => "Home",
+                    ExpenseType::CLOTH => "Cloth",
+                    ExpenseType::CAR => "Car",
+                    ExpenseType::TRAVEL => "Travel",
+                    ExpenseType::OTHER => "Other",
+                },
+                None => "-",
+            };
+            let timeFormat = self.time.format("%d.%m.%Y").to_string();
+            format! {"{:>3}  {:>1} {:>8.2}  {:<12}  {:<10}",self.id, mon_type, self.amount,expenseType,timeFormat}
+        }
+    }
+
+    #[derive(Debug)]
     pub struct RecordManager {
         records: Vec<Record>,
     }
@@ -40,6 +111,12 @@ pub mod record {
         pub fn new() -> RecordManager {
             RecordManager { records: vec![] }
         }
+
+        pub fn format_all(&self) -> Vec<String> {
+            let ret = self.get_all().iter().map(|r| r.format_record()).collect();
+            ret
+        }
+
         pub fn add_record(&mut self, record: Record) {
             self.records.push(record);
         }
@@ -80,8 +157,8 @@ pub mod record {
             ret
         }
 
-        pub fn expanse_by_category(&self) -> HashMap<ExpenseType, f32> {
-            let mut ret = HashMap::new();
+        pub fn categories_to_hash(&self) -> BTreeMap<ExpenseType, f32> {
+            let mut ret = BTreeMap::new();
             let fun = self
                 .records
                 .iter()
@@ -89,6 +166,7 @@ pub mod record {
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::FUN, fun);
+
             let restaurant = self
                 .records
                 .iter()
