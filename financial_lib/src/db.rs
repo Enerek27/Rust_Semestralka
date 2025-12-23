@@ -60,3 +60,24 @@ pub fn delete_record(record: Record) {
         .execute(conn)
         .expect("Error deleting record from db");
 }
+
+pub fn renumber_records_db() {
+    let old = load_records();
+
+    for r in old.get_all() {
+        delete_record(r);
+    }
+
+    let old_records = old.get_all();
+    let mut indexer = 1;
+    for mut r in old_records {
+        r.id = indexer;
+        indexer += 1;
+        insert_record(&r);
+    }
+}
+
+pub fn get_next_id() -> i32 {
+    let ret = load_records().get_all().len() + 1;
+    ret as i32
+}

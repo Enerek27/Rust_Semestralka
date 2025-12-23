@@ -36,6 +36,17 @@ pub enum AppEvent {
 
     IncrementRecords,
     DecrementRecords,
+    RemoveRecord,
+    UpdateRecord,
+    //input events
+    AddRecord,
+    Addchar(char),
+    Remchar,
+    TabInput,
+    BackTabInput,
+    EscReset,
+    EnterCOnfirm,
+    EnterInputMode,
     /// Quit the application.
     Quit,
 }

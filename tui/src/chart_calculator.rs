@@ -1,8 +1,8 @@
 pub mod chart_calculator {
+    use chrono::{DateTime, naive::NaiveDate};
+    use financial_lib::record::{ExpenseType, Record};
+    use ratatui::{layout::Rect, style::Color, text::Span};
     use std::collections::BTreeMap;
-    use chrono::naive::NaiveDate;
-    use financial_lib::record::ExpenseType;
-    use ratatui::{layout::Rect, style::Color};
 
     use crate::record_list::RecordLister;
 
@@ -44,14 +44,77 @@ pub mod chart_calculator {
                 financial_lib::record::MoneyType::INCOME => balance += r.amount as f64,
                 financial_lib::record::MoneyType::EXPENSE => balance -= r.amount as f64,
             }
-            
+
             days.insert(r.time, balance);
         }
 
         for (time, amount) in days {
-            let insert = time.and_hms_opt(0, 0, 0).expect("Conversion error to NaiveDateTime")
-            .and_utc().timestamp() as f64;
+            let insert = time
+                .and_hms_opt(0, 0, 0)
+                .expect("Conversion error to NaiveDateTime")
+                .and_utc()
+                .timestamp() as f64;
             ret.push((insert, amount));
+        }
+
+        ret
+    }
+
+    pub fn date_label(timestamp: f64) -> Span<'static> {
+        let date = DateTime::from_timestamp(timestamp as i64, 0)
+            .expect("Wrong conversion from timestamp to date");
+        Span::from(date.format("%d.%m.%Y").to_string())
+    }
+
+    pub fn generate_x_labels(
+        record_lister: &RecordLister,
+        label_count: usize,
+    ) -> Vec<Span<'static>> {
+        let dates = record_lister.record_manager.get_all();
+        let mut new_dates: Vec<NaiveDate> = dates.into_iter().map(|r| r.time).collect();
+        new_dates.sort();
+        new_dates.dedup();
+
+        let lenght = new_dates.len();
+        if lenght == 0 {
+            return vec![];
+        }
+
+        if new_dates.len() <= label_count {
+            return new_dates
+                .into_iter()
+                .map(|r| Span::from(r.format("%d.%m.%Y").to_string()))
+                .collect();
+        }
+
+        let step = lenght / label_count.max(1);
+        let mut ret = Vec::new();
+
+        let mut counter = 0;
+
+        while counter < lenght {
+            ret.push(Span::from(
+                new_dates[counter].format("%d.%m.%Y").to_string(),
+            ));
+            counter += step.max(1);
+        }
+
+        if ret.last().expect("Chyba posledneho").clone()
+            != Span::from(
+                new_dates
+                    .last()
+                    .expect("Chyba posledneho dates")
+                    .format("%d.%m.%Y")
+                    .to_string(),
+            )
+        {
+            ret.push(Span::from(
+                new_dates
+                    .last()
+                    .expect("Chyba posledneho dates")
+                    .format("%d.%m.%Y")
+                    .to_string(),
+            ));
         }
 
         ret
