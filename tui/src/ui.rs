@@ -26,21 +26,28 @@ const SELECTED: Style = Style::new()
 
 impl App {
     pub fn render_input_mode(&mut self, buf: &mut Buffer, area: Rect) {
-        let windows = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(2)
-            .constraints(vec![Constraint::Length(3); self.input_buffer.len()])
-            .split(area);
+        let block = Block::default()
+        .title("Add record")
+        .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black));
+    block.render(area, buf);
+            
+           
 
         let titles = [
             "Amount",
             "Type(+/-)",
-            "Category(Fun, Restaurant, Shopping, Investment, Freetime, Home, Cloth, Car, Travel, Other)",
+            "Category(Fn, Rest, Shop, Inv, Free, Hm, Cloth, Car, Trl, Oth)",
             "Date- dd.mm.yyyy",
         ];
        
-        
-        for (i, window) in windows.iter().enumerate() {
+        let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(1)
+        .constraints(vec![Constraint::Length(3); self.input_buffer.len()])
+        .split(area);
+
+        for (i, window) in chunks.iter().enumerate() {
             let buffer = &self.input_buffer[i];
 
             let style = if i == self.input_select as usize {
@@ -208,10 +215,7 @@ impl Widget for &mut App {
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
             .split(main_split[0]);
 
-        self.render_records(top_split[0], buf);
-        self.render_balance_chart(main_split[1], buf);
-        self.render_pseudo_pie_chart(top_split[1], buf);
-
+        
         if self.input_mode {
    
         let pop_up = ratatui::layout::Rect {
@@ -221,6 +225,11 @@ impl Widget for &mut App {
             height: area.height / 2,
         };
         self.render_input_mode(buf, pop_up); 
+        } else {
+            self.render_records(top_split[0], buf);
+            self.render_balance_chart(main_split[1], buf);
+            self.render_pseudo_pie_chart(top_split[1], buf);
+
         }
     }
 }
