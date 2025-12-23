@@ -155,6 +155,11 @@ impl App {
         }
 
         let data = data_for_time_graph(&self.record_lister);
+
+        if data.is_empty() {
+            border.render(area, buf);
+        return;
+    }
         let dataset = Dataset::default()
             .marker(symbols::Marker::Dot)
             .style(
@@ -216,7 +221,7 @@ impl Widget for &mut App {
             .split(main_split[0]);
 
         
-        if self.input_mode {
+        if self.input_mode || self.update_mode {
    
         let pop_up = ratatui::layout::Rect {
             x: area.x + area.width / 4,

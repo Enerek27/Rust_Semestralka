@@ -38,6 +38,7 @@ pub enum AppEvent {
     DecrementRecords,
     RemoveRecord,
     UpdateRecord,
+    EditRecord,
     //input events
     AddRecord,
     Addchar(char),

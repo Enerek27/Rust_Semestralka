@@ -5,7 +5,7 @@ use crate::{
 use color_eyre::eyre::Ok;
 use financial_lib::{
     db::{delete_record, load_records, renumber_records_db},
-    record::RecordManager,
+    record::{ExpenseType, Record, RecordManager},
 };
 use futures::future::ok;
 use ratatui::{
@@ -36,6 +36,8 @@ pub struct App {
     pub input_select: usize,
     pub input_buffer: Vec<String>,
     //pub records: RecordManager,
+    //update mode
+    pub update_mode: bool
 }
 
 impl Default for App {
@@ -49,6 +51,8 @@ impl Default for App {
             input_mode: false,
             input_select: 0,
             input_buffer: vec!["".to_string(); 4],
+            update_mode: false,
+            
         }
     }
 }
@@ -89,7 +93,8 @@ impl App {
                     AppEvent::EscReset => self.EscReset(),
                     AppEvent::EnterCOnfirm => self.EnterConfirm(),
                     AppEvent::EnterInputMode => self.enter_input_mode(),
-                },
+                    AppEvent::EditRecord => self.enter_edit_mode(),
+                                    },
             }
         }
         Ok(())
@@ -110,13 +115,14 @@ impl App {
             Ok(())
         } else {
             match key_event.code {
-                KeyCode::Esc | KeyCode::Char('q') => self.events.send(AppEvent::Quit),
+                KeyCode::Char('q') => self.events.send(AppEvent::Quit),
                 KeyCode::Tab => self.events.send(AppEvent::IncrementWidget),
                 KeyCode::BackTab => self.events.send(AppEvent::DecrementWidget),
                 KeyCode::Up => self.events.send(AppEvent::IncrementRecords),
                 KeyCode::Down => self.events.send(AppEvent::DecrementRecords),
                 KeyCode::Delete => self.events.send(AppEvent::RemoveRecord),
                 KeyCode::Char('a') => self.events.send(AppEvent::EnterInputMode),
+                KeyCode::Enter => self.events.send(AppEvent::EditRecord),
 
                 // Other handlers you could add here.
                 _ => {}
@@ -136,20 +142,45 @@ impl App {
         self.running = false;
     }
 
-    pub fn enter_input_mode(&mut self) {
-        if self.focusing_widget != FocusedWidget::Records {
+
+
+
+    
+    pub fn enter_edit_mode(&mut self) {
+        if self.focusing_widget != FocusedWidget::Records || self.record_lister.record_manager.get_all().len() == 0 {
             return;
         }
+        let record = self.record_lister.state.selected().expect("No selected error in enter_edit_mode");
+        let record = self.record_lister.record_manager.get_all()[record];
+        self.input_buffer = record_to_edit_mode(&record);
+        self.update_mode = true;
+        self.input_mode = true;
+    }
+
+    pub fn enter_input_mode(&mut self) {
+        if self.focusing_widget != FocusedWidget::Records || self.record_lister.record_manager.get_all().len() == 0 {
+            return;
+        }
+        
         self.input_mode = true;
     }
 
     pub fn EnterConfirm(&mut self) {
-        if !self
-            .record_lister
-            .add_record_from_input(self.input_buffer.clone())
-        {
-            println!("Chyba pridania zle zadane parametre");
-        };
+
+        if self.update_mode {
+             if !self.record_lister
+             .add_record_from_input_or_update(self.input_buffer.clone(), self.record_lister.state.selected().expect("Nothing selected") as i32) 
+             {
+                 println!("Error wrong parameters");
+             }
+        } else {
+            if !self
+                .record_lister
+                .add_record_from_input_or_update(self.input_buffer.clone(), -1)
+            {
+                println!("Error wrong parameters");
+            };
+        }
         self.EscReset();
     }
 
@@ -157,6 +188,7 @@ impl App {
         self.input_buffer.iter_mut().for_each(|i| i.clear());
         self.input_select = 0;
         self.input_mode = false;
+        self.update_mode = false;
     }
 
     pub fn tab_input(&mut self) {
@@ -229,4 +261,35 @@ impl App {
         renumber_records_db();
         self.record_lister.record_manager = load_records();
     }
+}
+
+
+pub fn record_to_edit_mode(record: &Record) -> Vec<String> {
+    let amount = format!("{:.2}", record.amount);
+
+    let money_type = match record.money_type {
+        financial_lib::record::MoneyType::INCOME => "+".to_string(),
+        financial_lib::record::MoneyType::EXPENSE => "-".to_string(),
+    };
+
+    let expense = match record.expense {
+        Some(e) => match e {
+                    ExpenseType::FUN => "FUN".to_string(),
+                    ExpenseType::RESTAURANT => "RESTAURANT".to_string(),
+                    ExpenseType::SHOPPING => "SHOPPING".to_string(),
+                    ExpenseType::INVESTMENT => "INVESTMENT".to_string(),
+                    ExpenseType::FREETIME => "FREETIME".to_string(),
+                    ExpenseType::HOME => "HOME".to_string(),
+                    ExpenseType::CLOTH => "CLOTH".to_string(),
+                    ExpenseType::CAR => "CAR".to_string(),
+                    ExpenseType::TRAVEL => "TRAVEL".to_string(),
+                    ExpenseType::OTHER => "OTHER".to_string(),
+        },
+        None => "NONE".to_string(),
+    };
+
+    let time = record.time.format("%d.%m.%Y").to_string();
+
+    vec![amount,money_type,expense,time]
+
 }

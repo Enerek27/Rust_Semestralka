@@ -1,8 +1,8 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use color_eyre::owo_colors::styles::BoldDisplay;
 use financial_lib::{
-    db::{get_next_id, insert_record, load_records, renumber_records_db},
-    record::{ExpenseType, MoneyType, Record, RecordManager},
+    db::{get_next_id, insert_record, load_records, renumber_records_db, update_record},
+    record::{self, ExpenseType, MoneyType, Record, RecordManager},
 };
 use ratatui::{text::Span, widgets::ListState};
 
@@ -62,7 +62,7 @@ impl RecordLister {
         self.state.select(Some(select_next));
     }
 
-    pub fn add_record_from_input(&mut self, input: Vec<String>) -> bool {
+    pub fn add_record_from_input_or_update(&mut self, input: Vec<String>, select_num: i32) -> bool {
         let amount: f32 = match input[0].trim().parse() {
             Ok(a) => a,
             Err(_) => return false,
@@ -94,20 +94,36 @@ impl RecordLister {
             Err(_) => return false,
         };
 
-        renumber_records_db();
+        if select_num != -1 {
+            let record_num = select_num as usize;
+            let mut change = self.record_manager.get_all()[record_num];
+            change.amount = amount;
+            change.expense = expanse;
+            change.time = time;
+            change.money_type = money_type1;
+            update_record(&change);
+            self.record_manager = load_records();
+            return true;
+        } else {
+            
+        
+            
+        
+            renumber_records_db();
 
-        let id = get_next_id();
+            let id = get_next_id();
 
-        let ret = Record {
-            id: id,
-            money_type: money_type1,
-            amount: amount,
-            expense: expanse,
-            time: time,
-        };
+            let ret = Record {
+                id: id,
+                money_type: money_type1,
+                amount: amount,
+                expense: expanse,
+                time: time,
+            };
 
-        insert_record(&ret);
-        self.record_manager = load_records();
-        true
+            insert_record(&ret);
+            self.record_manager = load_records();
+            true
+        }
     }
 }
