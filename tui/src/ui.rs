@@ -27,12 +27,10 @@ const SELECTED: Style = Style::new()
 impl App {
     pub fn render_input_mode(&mut self, buf: &mut Buffer, area: Rect) {
         let block = Block::default()
-        .title("Add record")
-        .borders(Borders::ALL)
-        .style(Style::default().bg(Color::Black));
-    block.render(area, buf);
-            
-           
+            .title("Add record")
+            .borders(Borders::ALL)
+            .style(Style::default().bg(Color::Black));
+        block.render(area, buf);
 
         let titles = [
             "Amount",
@@ -40,12 +38,12 @@ impl App {
             "Category(Fn, Rest, Shop, Inv, Free, Hm, Cloth, Car, Trl, Oth)",
             "Date- dd.mm.yyyy",
         ];
-       
+
         let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .margin(1)
-        .constraints(vec![Constraint::Length(3); self.input_buffer.len()])
-        .split(area);
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(vec![Constraint::Length(3); self.input_buffer.len()])
+            .split(area);
 
         for (i, window) in chunks.iter().enumerate() {
             let buffer = &self.input_buffer[i];
@@ -56,18 +54,16 @@ impl App {
                     .bg(Color::Black)
                     .add_modifier(Modifier::BOLD)
             } else {
-                Style::default()
-                .bg(Color::Black)
+                Style::default().bg(Color::Black)
             };
 
-        
-            let paragraph = Paragraph::new(buffer.as_str()) 
+            let paragraph = Paragraph::new(buffer.as_str())
                 .block(
                     Block::default()
-                        .title(titles[i]) 
+                        .title(titles[i])
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black)),
-                ) 
+                )
                 .style(style);
 
             //buf.set_style(window.clone(), style);
@@ -158,8 +154,8 @@ impl App {
 
         if data.is_empty() {
             border.render(area, buf);
-        return;
-    }
+            return;
+        }
         let dataset = Dataset::default()
             .marker(symbols::Marker::Dot)
             .style(
@@ -220,21 +216,18 @@ impl Widget for &mut App {
             .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
             .split(main_split[0]);
 
-        
         if self.input_mode || self.update_mode {
-   
-        let pop_up = ratatui::layout::Rect {
-            x: area.x + area.width / 4,
-            y: area.y + area.height / 4,
-            width: area.width / 2,
-            height: area.height / 2,
-        };
-        self.render_input_mode(buf, pop_up); 
+            let pop_up = ratatui::layout::Rect {
+                x: area.x + area.width / 4,
+                y: area.y + area.height / 4,
+                width: area.width / 2,
+                height: area.height / 2,
+            };
+            self.render_input_mode(buf, pop_up);
         } else {
             self.render_records(top_split[0], buf);
             self.render_balance_chart(main_split[1], buf);
             self.render_pseudo_pie_chart(top_split[1], buf);
-
         }
     }
 }

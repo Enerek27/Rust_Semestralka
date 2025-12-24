@@ -105,10 +105,6 @@ impl RecordLister {
             self.record_manager = load_records();
             return true;
         } else {
-            
-        
-            
-        
             renumber_records_db();
 
             let id = get_next_id();

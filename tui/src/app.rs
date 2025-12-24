@@ -37,7 +37,7 @@ pub struct App {
     pub input_buffer: Vec<String>,
     //pub records: RecordManager,
     //update mode
-    pub update_mode: bool
+    pub update_mode: bool,
 }
 
 impl Default for App {
@@ -52,7 +52,6 @@ impl Default for App {
             input_select: 0,
             input_buffer: vec!["".to_string(); 4],
             update_mode: false,
-            
         }
     }
 }
@@ -94,7 +93,7 @@ impl App {
                     AppEvent::EnterCOnfirm => self.EnterConfirm(),
                     AppEvent::EnterInputMode => self.enter_input_mode(),
                     AppEvent::EditRecord => self.enter_edit_mode(),
-                                    },
+                },
             }
         }
         Ok(())
@@ -142,15 +141,17 @@ impl App {
         self.running = false;
     }
 
-
-
-
-    
     pub fn enter_edit_mode(&mut self) {
-        if self.focusing_widget != FocusedWidget::Records || self.record_lister.record_manager.get_all().len() == 0 {
+        if self.focusing_widget != FocusedWidget::Records
+            || self.record_lister.record_manager.get_all().len() == 0
+        {
             return;
         }
-        let record = self.record_lister.state.selected().expect("No selected error in enter_edit_mode");
+        let record = self
+            .record_lister
+            .state
+            .selected()
+            .expect("No selected error in enter_edit_mode");
         let record = self.record_lister.record_manager.get_all()[record];
         self.input_buffer = record_to_edit_mode(&record);
         self.update_mode = true;
@@ -158,21 +159,24 @@ impl App {
     }
 
     pub fn enter_input_mode(&mut self) {
-        if self.focusing_widget != FocusedWidget::Records || self.record_lister.record_manager.get_all().len() == 0 {
+        if self.focusing_widget != FocusedWidget::Records {
             return;
         }
-        
+
         self.input_mode = true;
     }
 
     pub fn EnterConfirm(&mut self) {
-
         if self.update_mode {
-             if !self.record_lister
-             .add_record_from_input_or_update(self.input_buffer.clone(), self.record_lister.state.selected().expect("Nothing selected") as i32) 
-             {
-                 println!("Error wrong parameters");
-             }
+            if !self.record_lister.add_record_from_input_or_update(
+                self.input_buffer.clone(),
+                self.record_lister
+                    .state
+                    .selected()
+                    .expect("Nothing selected") as i32,
+            ) {
+                println!("Error wrong parameters");
+            }
         } else {
             if !self
                 .record_lister
@@ -263,7 +267,6 @@ impl App {
     }
 }
 
-
 pub fn record_to_edit_mode(record: &Record) -> Vec<String> {
     let amount = format!("{:.2}", record.amount);
 
@@ -274,22 +277,21 @@ pub fn record_to_edit_mode(record: &Record) -> Vec<String> {
 
     let expense = match record.expense {
         Some(e) => match e {
-                    ExpenseType::FUN => "FUN".to_string(),
-                    ExpenseType::RESTAURANT => "RESTAURANT".to_string(),
-                    ExpenseType::SHOPPING => "SHOPPING".to_string(),
-                    ExpenseType::INVESTMENT => "INVESTMENT".to_string(),
-                    ExpenseType::FREETIME => "FREETIME".to_string(),
-                    ExpenseType::HOME => "HOME".to_string(),
-                    ExpenseType::CLOTH => "CLOTH".to_string(),
-                    ExpenseType::CAR => "CAR".to_string(),
-                    ExpenseType::TRAVEL => "TRAVEL".to_string(),
-                    ExpenseType::OTHER => "OTHER".to_string(),
+            ExpenseType::FUN => "FUN".to_string(),
+            ExpenseType::RESTAURANT => "RESTAURANT".to_string(),
+            ExpenseType::SHOPPING => "SHOPPING".to_string(),
+            ExpenseType::INVESTMENT => "INVESTMENT".to_string(),
+            ExpenseType::FREETIME => "FREETIME".to_string(),
+            ExpenseType::HOME => "HOME".to_string(),
+            ExpenseType::CLOTH => "CLOTH".to_string(),
+            ExpenseType::CAR => "CAR".to_string(),
+            ExpenseType::TRAVEL => "TRAVEL".to_string(),
+            ExpenseType::OTHER => "OTHER".to_string(),
         },
         None => "NONE".to_string(),
     };
 
     let time = record.time.format("%d.%m.%Y").to_string();
 
-    vec![amount,money_type,expense,time]
-
+    vec![amount, money_type, expense, time]
 }
