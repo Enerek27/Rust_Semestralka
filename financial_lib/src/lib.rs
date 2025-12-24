@@ -3,15 +3,9 @@ pub mod models;
 pub mod schema;
 
 pub mod record {
-    use std::{
-        collections::{BTreeMap, HashMap},
-        fmt::format,
-        vec,
-    };
+    use std::{collections::BTreeMap, vec};
 
     use chrono::NaiveDate;
-
-    use crate::schema::records::money_type;
 
     #[derive(Debug, PartialEq, Clone, Copy)]
     pub enum MoneyType {
@@ -160,7 +154,9 @@ pub mod record {
             let fun = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::FUN) && r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::FUN) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::FUN, fun);
@@ -168,63 +164,81 @@ pub mod record {
             let restaurant = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::RESTAURANT)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::RESTAURANT) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::RESTAURANT, restaurant);
             let shopping = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::SHOPPING)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::SHOPPING) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::SHOPPING, shopping);
             let investment = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::INVESTMENT)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::INVESTMENT) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::INVESTMENT, investment);
             let freetime = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::FREETIME)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::FREETIME) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::FREETIME, freetime);
             let home = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::HOME)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::HOME) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::HOME, home);
             let cloth = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::CLOTH)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::CLOTH) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::CLOTH, cloth);
             let travel = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::TRAVEL)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::TRAVEL) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::TRAVEL, travel);
             let other = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::OTHER)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::OTHER) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::OTHER, other);
             let car = self
                 .records
                 .iter()
-                .filter(|r| r.expense == Some(ExpenseType::CAR)&& r.money_type == MoneyType::EXPENSE)
+                .filter(|r| {
+                    r.expense == Some(ExpenseType::CAR) && r.money_type == MoneyType::EXPENSE
+                })
                 .map(|r| r.amount)
                 .sum();
             ret.insert(ExpenseType::CAR, car);

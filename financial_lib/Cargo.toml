@@ -7,4 +7,4 @@ edition = "2024"
 chrono = "0.4.42"
 diesel = { version = "2.3.5", features = ["sqlite"] }
 dotenvy = "0.15.7"
-
+libsqlite3-sys = { version = "0.28", features = ["bundled"] } 

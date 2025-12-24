@@ -1,10 +1,12 @@
-use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
-use color_eyre::owo_colors::styles::BoldDisplay;
+use chrono::NaiveDate;
+
 use financial_lib::{
-    db::{delete_record, get_next_id, insert_record, load_records, renumber_records_db, update_record},
-    record::{self, ExpenseType, MoneyType, Record, RecordManager},
+    db::{
+        delete_record, get_next_id, insert_record, load_records, renumber_records_db, update_record,
+    },
+    record::{ExpenseType, MoneyType, Record, RecordManager},
 };
-use ratatui::{text::Span, widgets::ListState};
+use ratatui::widgets::ListState;
 
 #[derive(Debug)]
 pub struct RecordLister {
@@ -13,7 +15,7 @@ pub struct RecordLister {
 }
 
 impl RecordLister {
-    pub  fn new() -> Self {
+    pub fn new() -> Self {
         RecordLister {
             record_manager: load_records(),
             state: ListState::default(),
@@ -62,7 +64,11 @@ impl RecordLister {
         self.state.select(Some(select_next));
     }
 
-    pub async fn add_record_from_input_or_update(&mut self, input: Vec<String>, select_num: i32) -> bool {
+    pub async fn add_record_from_input_or_update(
+        &mut self,
+        input: Vec<String>,
+        select_num: i32,
+    ) -> bool {
         let amount: f32 = match input[0].trim().parse() {
             Ok(a) => a,
             Err(_) => return false,
@@ -102,20 +108,19 @@ impl RecordLister {
             change.time = time;
             change.money_type = money_type1;
             tokio::task::spawn_blocking(move || {
-            update_record(&change);
+                update_record(&change);
             })
             .await
-        .   unwrap();
+            .unwrap();
 
-        
             self.record_manager = tokio::task::spawn_blocking(|| load_records())
                 .await
                 .unwrap();
-                return true;
+            return true;
         } else {
             tokio::task::spawn_blocking(|| renumber_records_db())
-            .await
-            .unwrap();
+                .await
+                .unwrap();
 
             let id = get_next_id();
 
@@ -128,23 +133,25 @@ impl RecordLister {
             };
 
             tokio::task::spawn_blocking(move || insert_record(&ret))
-            .await
-            .unwrap();
+                .await
+                .unwrap();
 
             self.record_manager = tokio::task::spawn_blocking(|| load_records())
                 .await
                 .unwrap();
-                true
+            true
         }
     }
 
-    pub  async fn remove_record(&mut self,selected: Record) {
-        
-        tokio::task::spawn_blocking(move ||{
+    pub async fn remove_record(&mut self, selected: Record) {
+        tokio::task::spawn_blocking(move || {
             renumber_records_db();
-            delete_record(selected);}) ;
-        self.record_manager = tokio::task::spawn_blocking(|| {
-        load_records()
-        }).await.unwrap();
+            delete_record(selected);
+        })
+        .await
+        .unwrap();
+        self.record_manager = tokio::task::spawn_blocking(|| load_records())
+            .await
+            .unwrap();
     }
 }

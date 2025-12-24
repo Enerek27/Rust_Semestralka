@@ -197,7 +197,6 @@ impl App {
         chart.render(area, buf);
     }
     pub fn render_help_text(&mut self, area: Rect, buf: &mut Buffer) {
-
         let block = Block::default()
             .title("Help")
             .borders(Borders::ALL)
@@ -205,7 +204,6 @@ impl App {
 
         block.render(area, buf);
 
-        
         let help_text = vec![
             "KEYS:",
             "",
@@ -241,13 +239,8 @@ impl App {
             .alignment(Alignment::Left)
             .wrap(ratatui::widgets::Wrap { trim: false });
 
-        
-        
         paragraph.render(area, buf);
     }
-
-
-
 }
 
 impl Widget for &mut App {

@@ -3,14 +3,11 @@ use crate::{
     record_list::RecordLister,
 };
 use color_eyre::eyre::Ok;
-use financial_lib::{
-    db::{delete_record, load_records, renumber_records_db},
-    record::{ExpenseType, Record, RecordManager},
-};
-use futures::future::ok;
+use financial_lib::record::{ExpenseType, Record};
+
 use ratatui::{
     DefaultTerminal,
-    crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
+    crossterm::event::{KeyCode, KeyEvent},
 };
 
 #[derive(Debug, PartialEq)]
@@ -54,7 +51,6 @@ impl Default for App {
             input_buffer: vec!["".to_string(); 4],
             update_mode: false,
             help_show: false,
-            
         }
     }
 }
@@ -98,7 +94,7 @@ impl App {
                     AppEvent::EditRecord => self.enter_edit_mode(),
                     AppEvent::HelpEnter => self.help_enter(),
                     AppEvent::HelpExit => self.help_exit(),
-                                    },
+                },
             }
         }
         Ok(())
@@ -120,7 +116,7 @@ impl App {
         } else if self.help_show {
             match key_event.code {
                 KeyCode::Esc | KeyCode::Char('q') => self.events.send(AppEvent::HelpExit),
-                
+
                 _ => {}
             }
             Ok(())
@@ -153,7 +149,6 @@ impl App {
     pub fn quit(&mut self) {
         self.running = false;
     }
-
 
     pub fn help_enter(&mut self) {
         self.help_show = true;
@@ -189,7 +184,7 @@ impl App {
     }
 
     pub async fn EnterConfirm(&mut self) {
-            let success = if self.update_mode {
+        let success = if self.update_mode {
             let selected_index = self
                 .record_lister
                 .state
