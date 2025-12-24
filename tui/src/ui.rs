@@ -196,6 +196,58 @@ impl App {
 
         chart.render(area, buf);
     }
+    pub fn render_help_text(&mut self, area: Rect, buf: &mut Buffer) {
+
+        let block = Block::default()
+            .title("Help")
+            .borders(Borders::ALL)
+            .style(Style::default().bg(Color::Black).fg(Color::White));
+
+        block.render(area, buf);
+
+        
+        let help_text = vec![
+            "KEYS:",
+            "",
+            "q          - Quit",
+            "Tab        - Next widget",
+            "Shift+Tab  - Previous widget",
+            "",
+            "Records:",
+            "Up / Down  - Select record",
+            "Delete     - Remove record",
+            "a          - Add record",
+            "Enter      - Edit record",
+            "",
+            "Input mode:",
+            "Enter      - Confirm",
+            "Esc        - Cancel",
+            "Tab        - Next input",
+            "Shift+Tab  - Previous input",
+            "",
+            "Help mode:",
+            "h          - Toggle help",
+            "q          - Quit help mode",
+        ]
+        .join("\n");
+
+        let paragraph = Paragraph::new(help_text)
+            .block(
+                Block::default()
+                    .borders(Borders::ALL)
+                    .style(Style::default().bg(Color::Black)),
+            )
+            .style(Style::default().bg(Color::Black).fg(Color::White))
+            .alignment(Alignment::Left)
+            .wrap(ratatui::widgets::Wrap { trim: false });
+
+        
+        
+        paragraph.render(area, buf);
+    }
+
+
+
 }
 
 impl Widget for &mut App {
@@ -224,6 +276,8 @@ impl Widget for &mut App {
                 height: area.height / 2,
             };
             self.render_input_mode(buf, pop_up);
+        } else if self.help_show {
+            self.render_help_text(area, buf);
         } else {
             self.render_records(top_split[0], buf);
             self.render_balance_chart(main_split[1], buf);

@@ -30,6 +30,7 @@ pub struct App {
     pub record_lister: RecordLister,
     /// Event handler.
     pub events: EventHandler,
+    pub help_show: bool,
 
     //input mode
     pub input_mode: bool,
@@ -52,6 +53,8 @@ impl Default for App {
             input_select: 0,
             input_buffer: vec!["".to_string(); 4],
             update_mode: false,
+            help_show: false,
+            
         }
     }
 }
@@ -82,7 +85,7 @@ impl App {
                     AppEvent::IncrementWidget => self.increment_widget(),
                     AppEvent::IncrementRecords => self.record_check_decrement(),
                     AppEvent::DecrementRecords => self.record_check_increment(),
-                    AppEvent::RemoveRecord => self.remove_selected_record(),
+                    AppEvent::RemoveRecord => self.remove_selected_record().await,
                     AppEvent::UpdateRecord => todo!(),
                     AppEvent::AddRecord => todo!(),
                     AppEvent::Addchar(c) => self.char_add(c),
@@ -90,10 +93,12 @@ impl App {
                     AppEvent::TabInput => self.tab_input(),
                     AppEvent::BackTabInput => self.BackTabInput(),
                     AppEvent::EscReset => self.EscReset(),
-                    AppEvent::EnterCOnfirm => self.EnterConfirm(),
+                    AppEvent::EnterCOnfirm => self.EnterConfirm().await,
                     AppEvent::EnterInputMode => self.enter_input_mode(),
                     AppEvent::EditRecord => self.enter_edit_mode(),
-                },
+                    AppEvent::HelpEnter => self.help_enter(),
+                    AppEvent::HelpExit => self.help_exit(),
+                                    },
             }
         }
         Ok(())
@@ -112,6 +117,13 @@ impl App {
                 _ => {}
             }
             Ok(())
+        } else if self.help_show {
+            match key_event.code {
+                KeyCode::Esc | KeyCode::Char('q') => self.events.send(AppEvent::HelpExit),
+                
+                _ => {}
+            }
+            Ok(())
         } else {
             match key_event.code {
                 KeyCode::Char('q') => self.events.send(AppEvent::Quit),
@@ -122,6 +134,7 @@ impl App {
                 KeyCode::Delete => self.events.send(AppEvent::RemoveRecord),
                 KeyCode::Char('a') => self.events.send(AppEvent::EnterInputMode),
                 KeyCode::Enter => self.events.send(AppEvent::EditRecord),
+                KeyCode::Char('h') => self.events.send(AppEvent::HelpEnter),
 
                 // Other handlers you could add here.
                 _ => {}
@@ -139,6 +152,15 @@ impl App {
     /// Set running to false to quit the application.
     pub fn quit(&mut self) {
         self.running = false;
+    }
+
+
+    pub fn help_enter(&mut self) {
+        self.help_show = true;
+    }
+
+    pub fn help_exit(&mut self) {
+        self.help_show = false;
     }
 
     pub fn enter_edit_mode(&mut self) {
@@ -166,25 +188,27 @@ impl App {
         self.input_mode = true;
     }
 
-    pub fn EnterConfirm(&mut self) {
-        if self.update_mode {
-            if !self.record_lister.add_record_from_input_or_update(
-                self.input_buffer.clone(),
-                self.record_lister
-                    .state
-                    .selected()
-                    .expect("Nothing selected") as i32,
-            ) {
-                println!("Error wrong parameters");
-            }
-        } else {
-            if !self
+    pub async fn EnterConfirm(&mut self) {
+            let success = if self.update_mode {
+            let selected_index = self
                 .record_lister
+                .state
+                .selected()
+                .expect("Nothing selected") as i32;
+
+            self.record_lister
+                .add_record_from_input_or_update(self.input_buffer.clone(), selected_index)
+                .await
+        } else {
+            self.record_lister
                 .add_record_from_input_or_update(self.input_buffer.clone(), -1)
-            {
-                println!("Error wrong parameters");
-            };
+                .await
+        };
+
+        if !success {
+            println!("Error: wrong parameters");
         }
+
         self.EscReset();
     }
 
@@ -249,7 +273,7 @@ impl App {
         self.record_lister.select_previous();
     }
 
-    pub fn remove_selected_record(&mut self) {
+    pub async fn remove_selected_record(&mut self) {
         if self.focusing_widget != FocusedWidget::Records {
             return;
         }
@@ -261,9 +285,7 @@ impl App {
         };
 
         let selected = self.record_lister.record_manager.get_all()[selected];
-        delete_record(selected);
-        renumber_records_db();
-        self.record_lister.record_manager = load_records();
+        self.record_lister.remove_record(selected).await;
     }
 }
 

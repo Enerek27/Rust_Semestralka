@@ -27,6 +27,7 @@ pub mod chart_calculator {
         let original_values = record_lister.record_manager.categories_to_hash();
 
         for (category, value) in original_values {
+            
             ret.push((category.into(), value as u64));
         }
 
@@ -60,11 +61,7 @@ pub mod chart_calculator {
         ret
     }
 
-    pub fn date_label(timestamp: f64) -> Span<'static> {
-        let date = DateTime::from_timestamp(timestamp as i64, 0)
-            .expect("Wrong conversion from timestamp to date");
-        Span::from(date.format("%d.%m.%Y").to_string())
-    }
+    
 
     pub fn generate_x_labels(
         record_lister: &RecordLister,

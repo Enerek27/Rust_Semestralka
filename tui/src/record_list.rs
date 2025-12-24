@@ -1,7 +1,7 @@
 use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 use color_eyre::owo_colors::styles::BoldDisplay;
 use financial_lib::{
-    db::{get_next_id, insert_record, load_records, renumber_records_db, update_record},
+    db::{delete_record, get_next_id, insert_record, load_records, renumber_records_db, update_record},
     record::{self, ExpenseType, MoneyType, Record, RecordManager},
 };
 use ratatui::{text::Span, widgets::ListState};
@@ -13,7 +13,7 @@ pub struct RecordLister {
 }
 
 impl RecordLister {
-    pub fn new() -> Self {
+    pub  fn new() -> Self {
         RecordLister {
             record_manager: load_records(),
             state: ListState::default(),
@@ -62,7 +62,7 @@ impl RecordLister {
         self.state.select(Some(select_next));
     }
 
-    pub fn add_record_from_input_or_update(&mut self, input: Vec<String>, select_num: i32) -> bool {
+    pub async fn add_record_from_input_or_update(&mut self, input: Vec<String>, select_num: i32) -> bool {
         let amount: f32 = match input[0].trim().parse() {
             Ok(a) => a,
             Err(_) => return false,
@@ -101,11 +101,21 @@ impl RecordLister {
             change.expense = expanse;
             change.time = time;
             change.money_type = money_type1;
+            tokio::task::spawn_blocking(move || {
             update_record(&change);
-            self.record_manager = load_records();
-            return true;
+            })
+            .await
+        .   unwrap();
+
+        
+            self.record_manager = tokio::task::spawn_blocking(|| load_records())
+                .await
+                .unwrap();
+                return true;
         } else {
-            renumber_records_db();
+            tokio::task::spawn_blocking(|| renumber_records_db())
+            .await
+            .unwrap();
 
             let id = get_next_id();
 
@@ -117,9 +127,24 @@ impl RecordLister {
                 time: time,
             };
 
-            insert_record(&ret);
-            self.record_manager = load_records();
-            true
+            tokio::task::spawn_blocking(move || insert_record(&ret))
+            .await
+            .unwrap();
+
+            self.record_manager = tokio::task::spawn_blocking(|| load_records())
+                .await
+                .unwrap();
+                true
         }
+    }
+
+    pub  async fn remove_record(&mut self,selected: Record) {
+        
+        tokio::task::spawn_blocking(move ||{
+            renumber_records_db();
+            delete_record(selected);}) ;
+        self.record_manager = tokio::task::spawn_blocking(|| {
+        load_records()
+        }).await.unwrap();
     }
 }

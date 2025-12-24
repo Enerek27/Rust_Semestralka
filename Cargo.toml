@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "financial_lib",
-    "starter",
     "tui",
 ]
 resolver = "3"
