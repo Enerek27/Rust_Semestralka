@@ -1,8 +1,17 @@
+//! Modul databázového modelu pre tabuľku `records`.
+//!
+//! Obsahuje štruktúru `dbRecord`, ktorá reprezentuje jeden záznam
+//! uložený v SQLite databáze, a konverzie medzi databázovým modelom
+//! a aplikačným modelom `Record`.
+
 use chrono::NaiveDate;
 use diesel::prelude::*;
 
 use crate::record::Record;
-
+/// Databázová reprezentácia finančného záznamu.
+///
+/// Táto štruktúra sa používa na čítanie a zápis dát
+/// do SQLite databázy pomocou knižnice Diesel.
 #[derive(Queryable, Selectable, Insertable)]
 #[diesel(table_name = crate::schema::records)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
@@ -13,7 +22,9 @@ pub struct dbRecord {
     pub expense: Option<String>,
     pub time: String,
 }
-
+/// Konverzia aplikačného záznamu `Record` na databázový model `dbRecord`.
+///
+/// Používa sa pri vkladaní alebo aktualizácii záznamov v databáze.
 impl From<&Record> for dbRecord {
     fn from(value: &Record) -> Self {
         dbRecord {
@@ -42,6 +53,9 @@ impl From<&Record> for dbRecord {
         }
     }
 }
+/// Konverzia databázového modelu `dbRecord` na aplikačný model `Record`.
+///
+/// Používa sa pri načítaní dát z databázy do aplikácie.
 impl From<&dbRecord> for Record {
     fn from(value: &dbRecord) -> Self {
         Record {

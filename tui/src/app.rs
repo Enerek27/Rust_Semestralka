@@ -1,3 +1,5 @@
+
+//! Hlavný aplikačný modul TUI aplikácie.
 use crate::{
     event::{AppEvent, Event, EventHandler},
     record_list::RecordLister,
@@ -10,6 +12,7 @@ use ratatui::{
     crossterm::event::{KeyCode, KeyEvent},
 };
 
+/// Určuje, ktorý widget je momentálne aktívny.
 #[derive(Debug, PartialEq)]
 pub enum FocusedWidget {
     Records,
@@ -17,24 +20,27 @@ pub enum FocusedWidget {
     LineChart,
 }
 
-/// Application.
+/// Aplikácia.
 #[derive(Debug)]
 pub struct App {
-    /// Is the application running?
+    /// beží aplikácia
     pub running: bool,
-    /// Counter.
+    /// Ktorý widget je aktívny
     pub focusing_widget: FocusedWidget,
+    /// správca záznamov
     pub record_lister: RecordLister,
-    /// Event handler.
+    /// srpáva handlara
     pub events: EventHandler,
+    /// je zobrazený help
     pub help_show: bool,
 
-    //input mode
+    ///input mode zapnutý
     pub input_mode: bool,
     pub input_select: usize,
+    /// čo sa má zobrazit v input režime
     pub input_buffer: Vec<String>,
-    //pub records: RecordManager,
-    //update mode
+    
+    ///update mode zapnutý
     pub update_mode: bool,
 }
 
@@ -44,7 +50,6 @@ impl Default for App {
             running: true,
             focusing_widget: FocusedWidget::Records,
             events: EventHandler::new(),
-            // records: load_records(),
             record_lister: RecordLister::new(),
             input_mode: false,
             input_select: 0,
@@ -56,12 +61,12 @@ impl Default for App {
 }
 
 impl App {
-    /// Constructs a new instance of [`App`].
+    /// vytvortý novú inštanciu [`App`].
     pub fn new() -> Self {
         Self::default()
     }
 
-    /// Run the application's main loop.
+    /// Hlavný cyklus applikácie
     pub async fn run(mut self, mut terminal: DefaultTerminal) -> color_eyre::Result<()> {
         while self.running {
             terminal.draw(|frame| frame.render_widget(&mut self, frame.area()))?;
@@ -100,7 +105,7 @@ impl App {
         Ok(())
     }
 
-    /// Handles the key events and updates the state of [`App`].
+    /// handler pre eventy  [`App`].
     pub fn handle_key_events(&mut self, key_event: KeyEvent) -> color_eyre::Result<()> {
         if self.input_mode {
             match key_event.code {
@@ -132,32 +137,29 @@ impl App {
                 KeyCode::Enter => self.events.send(AppEvent::EditRecord),
                 KeyCode::Char('h') => self.events.send(AppEvent::HelpEnter),
 
-                // Other handlers you could add here.
+                
                 _ => {}
             }
             Ok(())
         }
     }
 
-    /// Handles the tick event of the terminal.
-    ///
-    /// The tick event is where you can update the state of your application with any logic that
-    /// needs to be updated at a fixed frame rate. E.g. polling a server, updating an animation.
+     /// Aktualizácia stavu aplikácie pri tick udalosti.
     pub fn tick(&self) {}
 
-    /// Set running to false to quit the application.
+    /// Ukončí aplikáciu.
     pub fn quit(&mut self) {
         self.running = false;
     }
-
+ /// Aktivuje zobrazenie pomoci
     pub fn help_enter(&mut self) {
         self.help_show = true;
     }
-
+/// vypne zobrazenie pomoci
     pub fn help_exit(&mut self) {
         self.help_show = false;
     }
-
+   /// Prepne aplikáciu do režimu úpravy záznamu.
     pub fn enter_edit_mode(&mut self) {
         if self.focusing_widget != FocusedWidget::Records
             || self.record_lister.record_manager.get_all().len() == 0
@@ -174,7 +176,7 @@ impl App {
         self.update_mode = true;
         self.input_mode = true;
     }
-
+  /// Aktivuje režim pridávania nového záznamu.
     pub fn enter_input_mode(&mut self) {
         if self.focusing_widget != FocusedWidget::Records {
             return;
@@ -182,7 +184,7 @@ impl App {
 
         self.input_mode = true;
     }
-
+ /// Potvrdí zadanie alebo úpravu záznamu.
     pub async fn EnterConfirm(&mut self) {
         let success = if self.update_mode {
             let selected_index = self
@@ -206,14 +208,14 @@ impl App {
 
         self.EscReset();
     }
-
+/// Resetuje vstupný režim.
     pub fn EscReset(&mut self) {
         self.input_buffer.iter_mut().for_each(|i| i.clear());
         self.input_select = 0;
         self.input_mode = false;
         self.update_mode = false;
     }
-
+/// Posunie kurzor na ďalšie vstupné pole.
     pub fn tab_input(&mut self) {
         if self.input_select == 3 {
             self.input_select = 0;
@@ -221,7 +223,7 @@ impl App {
             self.input_select += 1;
         }
     }
-
+ /// Posunie kurzor na predchádzajúce vstupné pole.
     pub fn BackTabInput(&mut self) {
         if self.input_select == 0 {
             self.input_select = 3;
@@ -229,15 +231,15 @@ impl App {
             self.input_select -= 1;
         }
     }
-
+ /// Odstráni posledný znak zo vstupu.
     pub fn rem_char(&mut self) {
         self.input_buffer[self.input_select].pop();
     }
-
+  /// Pridá znak do vstupu.
     pub fn char_add(&mut self, c: char) {
         self.input_buffer[self.input_select].push(c);
     }
-
+/// Presunie fokus na ďalší widget.
     pub fn increment_widget(&mut self) {
         self.focusing_widget = match self.focusing_widget {
             FocusedWidget::Records => FocusedWidget::PieChart,
@@ -245,7 +247,7 @@ impl App {
             FocusedWidget::LineChart => FocusedWidget::Records,
         };
     }
-
+/// Presunie fokus na predchádzajúci widget.
     pub fn decrement_widget(&mut self) {
         self.focusing_widget = match self.focusing_widget {
             FocusedWidget::Records => FocusedWidget::LineChart,
@@ -254,20 +256,22 @@ impl App {
         };
     }
 
+    /// Posunie výber záznamov nahor.
+  
     pub fn record_check_increment(&mut self) {
         if self.focusing_widget != FocusedWidget::Records {
             return;
         }
         self.record_lister.select_next();
     }
-
+/// Posunie výber záznamov nadol.
     pub fn record_check_decrement(&mut self) {
         if self.focusing_widget != FocusedWidget::Records {
             return;
         }
         self.record_lister.select_previous();
     }
-
+/// Odstráni vybraný záznam.
     pub async fn remove_selected_record(&mut self) {
         if self.focusing_widget != FocusedWidget::Records {
             return;
@@ -283,7 +287,7 @@ impl App {
         self.record_lister.remove_record(selected).await;
     }
 }
-
+/// Konvertuje záznam do formátu pre editáciu záznamu
 pub fn record_to_edit_mode(record: &Record) -> Vec<String> {
     let amount = format!("{:.2}", record.amount);
 

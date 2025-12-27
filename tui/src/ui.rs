@@ -1,3 +1,10 @@
+//! Modul pre vykresľovanie UI komponentov aplikácie.
+//!
+//! Obsahuje implementáciu metód pre [`App`] na vykreslenie:
+//! - vstupného formulára (input mode),
+//! - zoznamu záznamov,
+//! - grafov (pseudo pie chart, balance line chart),
+//! - nápovedy (help text).
 use core::f64;
 
 use crossterm::style;
@@ -25,6 +32,7 @@ const SELECTED: Style = Style::new()
     .add_modifier(Modifier::BOLD);
 
 impl App {
+    /// Vykreslí vstupný formulár pre pridanie alebo úpravu záznamu.
     pub fn render_input_mode(&mut self, buf: &mut Buffer, area: Rect) {
         let block = Block::default()
             .title("Add record")
@@ -70,7 +78,7 @@ impl App {
             paragraph.render(*window, buf);
         }
     }
-
+/// Vykreslí zoznam záznamov.
     pub fn render_records(&mut self, area: Rect, buf: &mut Buffer) {
         let items: Vec<ListItem> = self
             .record_lister
@@ -107,7 +115,7 @@ impl App {
             .highlight_spacing(ratatui::widgets::HighlightSpacing::Always);
         StatefulWidget::render(record_list, area, buf, &mut self.record_lister.state);
     }
-
+/// Vykreslí pseudo pie chart kategórií výdavkov.
     pub fn render_pseudo_pie_chart(&mut self, area: Rect, buf: &mut Buffer) {
         let data = percentage_for_pie(&self.record_lister);
 
@@ -141,7 +149,7 @@ impl App {
 
         chart.render(area, buf);
     }
-
+/// Vykreslí graf zostatku v čase.
     pub fn render_balance_chart(&mut self, area: Rect, buf: &mut Buffer) {
         let mut border = Block::bordered()
             .title("Balance over time")
@@ -196,6 +204,7 @@ impl App {
 
         chart.render(area, buf);
     }
+    /// Vykreslí nápovedu s popisom klávesových skratiek.
     pub fn render_help_text(&mut self, area: Rect, buf: &mut Buffer) {
         let block = Block::default()
             .title("Help")
@@ -245,12 +254,9 @@ impl App {
 }
 
 impl Widget for &mut App {
-    /// Renders the user interface widgets.
+    /// Vykreslí všetky UI komponenty.
     ///
-    // This is where you add new widgets.
-    // See the following resources:
-    // - https://docs.rs/ratatui/latest/ratatui/widgets/index.html
-    // - https://github.com/ratatui/ratatui/tree/master/examples
+    /// Automaticky volí, čo sa vykreslí podľa stavu aplikácie (`input_mode`, `help_show` alebo focus widget).
     fn render(self, area: Rect, buf: &mut Buffer) {
         let main_split = Layout::default()
             .direction(Direction::Vertical)

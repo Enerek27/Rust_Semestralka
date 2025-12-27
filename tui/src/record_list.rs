@@ -1,3 +1,7 @@
+//! Modul pre správu a výber záznamov (`Record`) v aplikácii.
+//!
+//! Obsahuje štruktúru [`RecordLister`], ktorá uchováva [`RecordManager`] a stav výberu (`ListState`),
+//! a metódy na prechádzanie, pridávanie, aktualizovanie a mazanie záznamov.
 use chrono::NaiveDate;
 
 use financial_lib::{
@@ -8,20 +12,24 @@ use financial_lib::{
 };
 use ratatui::widgets::ListState;
 
+/// Štruktúra na správu zoznamu záznamov s výberom.
 #[derive(Debug)]
 pub struct RecordLister {
+    /// Správca záznamov.
     pub record_manager: RecordManager,
+    /// Stav vybraného záznamu v UI.
     pub state: ListState,
 }
 
 impl RecordLister {
+    /// Vytvorí nový [`RecordLister`] a načíta záznamy z databázy.
     pub fn new() -> Self {
         RecordLister {
             record_manager: load_records(),
             state: ListState::default(),
         }
     }
-
+/// Posunie výber na ďalší záznam.
     pub fn select_next(&mut self) {
         if self.record_manager.get_all().len() == 0 {
             return;
@@ -43,6 +51,7 @@ impl RecordLister {
         self.state.select(Some(select_next));
     }
 
+    /// Posunie výber na predchádzajúci záznam.
     pub fn select_previous(&mut self) {
         if self.record_manager.get_all().len() == 0 {
             return;
@@ -63,7 +72,16 @@ impl RecordLister {
 
         self.state.select(Some(select_next));
     }
-
+ /// Pridá nový záznam alebo aktualizuje existujúci podľa `select_num`.
+    ///
+    /// # Argumenty
+    ///
+    /// * `input` - Vektor obsahujúci údaje záznamu vo formáte `[amount, money_type, expense, time]`.
+    /// * `select_num` - Index existujúceho záznamu. Ak je -1, vytvorí sa nový záznam.
+    ///
+    /// # Návratová hodnota
+    ///
+    /// Vracia `true`, ak bol záznam úspešne spracovaný, inak `false`.
     pub async fn add_record_from_input_or_update(
         &mut self,
         input: Vec<String>,
@@ -142,7 +160,7 @@ impl RecordLister {
             true
         }
     }
-
+/// Odstráni vybraný záznam z databázy a obnoví zoznam záznamov.
     pub async fn remove_record(&mut self, selected: Record) {
         tokio::task::spawn_blocking(move || {
             renumber_records_db();

@@ -1,3 +1,4 @@
+//! Modul pre spracovanie udalostí v aplikácii.
 use color_eyre::eyre::OptionExt;
 use futures::{FutureExt, StreamExt};
 use ratatui::crossterm::event::Event as CrosstermEvent;
@@ -31,24 +32,39 @@ pub enum Event {
 /// You can extend this enum with your own custom events.
 #[derive(Clone, Debug)]
 pub enum AppEvent {
+    /// Next widget
     IncrementWidget,
+    /// Previous widget
     DecrementWidget,
-
+    /// next record
     IncrementRecords,
+    /// Previous record
     DecrementRecords,
+    /// Remove record
     RemoveRecord,
+    /// Update record
     UpdateRecord,
+    /// Edit record
     EditRecord,
+    /// Open help
     HelpEnter,
+    /// Exit help
     HelpExit,
-    //input events
+    /// Add record
     AddRecord,
+    /// Add char from input
     Addchar(char),
+    /// Remove char from input
     Remchar,
+    /// Next input window
     TabInput,
+    /// Previous input window
     BackTabInput,
+    /// End input/edit mode without saving
     EscReset,
+    /// Confirm edit
     EnterCOnfirm,
+    /// Confirm input
     EnterInputMode,
     /// Quit the application.
     Quit,
