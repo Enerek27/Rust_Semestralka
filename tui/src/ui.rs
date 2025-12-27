@@ -205,6 +205,7 @@ impl App {
         block.render(area, buf);
 
         let help_text = vec![
+            
             "KEYS:",
             "",
             "q          - Quit",
@@ -212,16 +213,16 @@ impl App {
             "Shift+Tab  - Previous widget",
             "",
             "Records:",
-            "Up / Down  - Select record",
+            "Up / Down  - Select record",    
             "Delete     - Remove record",
             "a          - Add record",
             "Enter      - Edit record",
             "",
-            "Input mode:",
-            "Enter      - Confirm",
-            "Esc        - Cancel",
-            "Tab        - Next input",
-            "Shift+Tab  - Previous input",
+            "Input mode:                            Categories: ",
+            "Enter      - Confirm                        FUN, RESTAURANT,",
+            "Esc        - Cancel                         SHOPPING, INVESTMENT,",
+            "Tab        - Next input                     FREETIME, HOME, CLOTH,",
+            "Shift+Tab  - Previous input                 CAR,TRAVEL, OTHER, NONE",
             "",
             "Help mode:",
             "h          - Toggle help",
